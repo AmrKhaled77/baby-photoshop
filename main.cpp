@@ -221,6 +221,31 @@ void Merg(Image image,Image image2,string filePath ){
 }
 
 
+void grayscale(Image image,string filePath)
+{
+
+
+    for(int i =0 ; i<image.width ;i++)
+    {
+        for(int j =0 ; j<image.height ;j++)
+        {
+            unsigned int avarege;
+            for(int k=0;k<image.channels;k++)
+            {
+                avarege+= image(i,j,k);
+            }
+            avarege=avarege/3;
+            image(i,j,0)=avarege;
+            image(i,j,1)=avarege;
+            image(i,j,2)=avarege;
+        }
+    }
+
+    saveImage(image,filePath);
+}
+
+
+
 
 string start(){
     string filePath;
@@ -279,7 +304,7 @@ int main() {
             case 0:
                 break;
             case 1:
-                invert( Image(filePath),filePath);
+                grayscale( Image(filePath),filePath);
 
                 break;
             case 2:
