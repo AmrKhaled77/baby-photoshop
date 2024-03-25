@@ -317,7 +317,7 @@ int main() {
                 {
                     error = 0;
                     cout << " 90,180 or 270 degree : ";
-                    cin >> rotate; // Get the number of swaps from user
+                    cin >> rotate;
                     if (cin.fail())
                     {
                         cout << "Please enter a valid choice ," << endl;
