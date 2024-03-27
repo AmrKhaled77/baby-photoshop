@@ -1,6 +1,55 @@
+
+/* author 1 amr khaled with ID :20230271
+   author 2 hossam mohamed with ID :20230122
+   author 3 saif elden omar  with ID :20230183
+
+descrption:
+
+Inversion: Inverts the colors of the image.
+
+Rotation: Rotates the image by 90, 180, or 270 degrees.
+
+Blur: Applies a blur effect to the image to smooth out details.
+
+Add Frame: Adds a frame to the image with a specified color.
+
+Black and White Conversion:Converts the image to black and white, preserving essential details while removing color information.
+
+Grayscale Conversion: Converts the image to grayscale, simplifying it to shades of gray.
+
+The program incorporates error handling and input validation to ensure user
+ inputs are valid, providing a seamless experience. Additionally, it offers options
+ for saving the manipulated images either to the same file or a new file, enhancing
+ flexibility in file management.
+
+ who did what :
+ amr khaled with ID:20230271 did blur,rotate,invert and add frame and made the menu and
+ function to save image
+
+ hossam mohamed with ID :20230122 did gray scale
+
+ saif elden omar  with ID :20230183 did black and wight
+
+
+   */
+
+
+
+
+
+
+
 #include "Image_Class.h"
+#include <vector>
 
 using namespace  std;
+
+
+struct RGB{
+    int red, green, blue;
+
+};
+
 void  start();
 
 void saveImage(Image image,string filePath){
@@ -13,7 +62,7 @@ void saveImage(Image image,string filePath){
         error = 0;
         cout << " : ";
         cin >> choice; // Get the number of swaps from user
-        if (cin.fail())
+        if (cin.fail()||choice<0||choice>2)
         {
             cout << "Please enter a valid choice ," << endl;
             error = 1;
@@ -30,11 +79,12 @@ void saveImage(Image image,string filePath){
             {  saveImage( image, filePath); }
 
             cout<<" done and file saved successfully"<<endl;
+            system(filePath.c_str());
             start();
             break;
         case 2:
             string newPth;
-            cout<<" please enter  new path  consider the extension  (.PNG , .JPEG, .TIFF, .JPG )  : "<<endl;
+            cout<<" please enter  new path  consider the extension  (.PNG , .JPEG, .bmp, .JPG, .tga )  : "<<endl;
             cin>>newPth;
             try { image.saveImage(newPth); }
             catch (const std::exception& e)
@@ -43,6 +93,7 @@ void saveImage(Image image,string filePath){
                 saveImage( image, filePath); }
 
             cout<<" done and file saved successfully"<<endl;
+            system(newPth.c_str());
             start();
             break;
 
@@ -67,143 +118,6 @@ void invert(Image image,string filePath ){
         }
 
     }
-    saveImage(image,filePath);
-}
-
-void addDecoratedFrame(Image image,string filePath) {
-    int frameWidth=40;
-    int borderWidth=20;
-    int cornerSize=60;
-    // Add the frame
-
-    for (int y = 0; y < image.height; ++y) {
-        for (int x = 0; x < image.width; ++x) {
-            if (y < frameWidth || y >= image.height - frameWidth ||
-                x < frameWidth || x >= image.width - frameWidth) {
-                image(x, y, 0)=0;
-                image(x, y, 1)=0;
-                image(x, y, 2)=200;
-            }
-        }
-    }
-
-    // Add the border
-    for (int y = frameWidth; y < image.height - frameWidth; ++y) {
-        for (int x = frameWidth; x < image.width - frameWidth; ++x) {
-            if (y < frameWidth + borderWidth || y >= image.height - frameWidth - borderWidth ||
-                x < frameWidth + borderWidth || x >= image.width - frameWidth - borderWidth) {
-                image(x, y, 0)=255;
-                image(x, y, 1)=255;
-                image(x, y, 2)=255;
-            }
-        }
-
-    }
-
-    int hollowSize=50;
-    for (int y = 0; y < cornerSize; ++y) {
-        for (int x = 0; x < cornerSize; ++x) {
-
-
-            image(x, y, 0)=255;
-            image(x, y, 1)=255;
-            image(x, y, 2)=255;
-
-            image(image.width - x - 1, y, 0)=255;
-            image(image.width - x - 1, y,1)=255;
-            image(image.width - x - 1, y, 2)=255;
-
-            image(x, image.height - y - 1,0)=255;
-            image(x, image.height - y - 1, 1)=255;
-            image(x, image.height - y - 1, 2)=255;
-
-            image(image.width - x - 1,image.height - y - 1, 0)=255;
-            image(image.width - x - 1,image.height - y - 1,  1)=255;
-            image(image.width - x - 1,image.height - y - 1, 2)=255;
-
-
-
-
-
-        }
-    }
-    saveImage(image,filePath);
-}
-
-void makeFrame(Image image,string filePath){
-    //ceil and ground
-    for (int i = 0; i <image.width ; ++i) {
-        for (int j = 0; j <45 ; ++j) {
-
-            image(i,j,0)=0;
-            image(i,j,1)=0;
-            image(i,j,2)=200;
-
-            image(i,image.height-45+j,0)=0;
-            image(i,image.height-45+j,1)=0;
-            image(i,image.height-45+j,2)=200;
-
-
-        }
-
-
-    }
-    saveImage(image,filePath);
-
-
-// left and right
-    for (int i = 0; i <45 ; ++i) {
-        for (int j = 0; j <image.height ; ++j) {
-
-            image(i,j,0)=0;
-            image(i,j,1)=0;
-            image(i,j,2)=200;
-            image(image.width-45+i,j,0)=0;
-            image(image.width-45+i,j,1)=0;
-            image(image.width-45+i,j,2)=200;
-
-
-        }
-
-
-    }
-
-    image.saveImage("test1.png");
-}
-
-void makeBlure(Image image,string filePath){
-    int blur_concentrtion=9;
-
-    // Iterate over each pixel in the image
-    for (int y = 0; y < image.height; ++y) {
-        for (int x = 0; x < image.width; ++x) {
-            int red = 0,
-            green = 0,
-            blue = 0
-            , count = 0;
-
-            for (int width = -blur_concentrtion; width <= blur_concentrtion; ++width) {
-                for (int hight = -blur_concentrtion; hight <= blur_concentrtion; ++hight) {
-                    int nx = x + hight;
-                    int ny = y + width;
-
-                    // Check if the current pixel is within the image bounds
-                    if (nx >= 0 && nx < image.width && ny >= 0 && ny < image.height) {
-                        // Accumulate the color values
-                        red += image(nx, ny, 0);
-                        green += image(nx, ny, 1);
-                        blue += image(nx, ny, 2);
-                        count++;
-                    }
-                }
-            }
-            // Average the color values
-            image(x,y,0) = red / count;
-            image(x,y,1) = green / count;
-            image(x,y,2) = blue / count;
-        }
-    }
-
     saveImage(image,filePath);
 }
 
@@ -313,33 +227,83 @@ void b_w( Image imafge,string filePath)
 
 }
 
-void addFrame(Image image, string filePath) {
-    int frameWidth=40;
-    // Add the top and bottom frame
+void addFrame(Image image,string filePath,int color ,int fancy) {
+    int frameWidth=image.width/97;
+    int borderWidth=image.width/97;
+    int cornerSize=60;
+
+    vector<RGB> colors={
+            {255, 0, 0},     // Red
+            {0, 255, 0},     // Green
+            {0, 0, 255},     // Blue
+            {255, 255, 0},   // Yellow
+            {0, 255, 255},   // Cyan
+            {255, 165, 0},   // Orange
+            {128, 0, 128},   // Purple
+            {255, 192, 203}, // Pink
+            {128, 128, 128}, // Gray
+            {0, 0, 0}        // Black
+
+
+    };
+    // Add the frame
+
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
-            if (y < frameWidth || y >= image.height - frameWidth) {
-                image(x, y, 0)=0;
-                image(x, y, 1)=0;
-                image(x, y, 2)=200;
+            if (y < frameWidth || y >= image.height - frameWidth ||
+                x < frameWidth || x >= image.width - frameWidth) {
+                image(x, y, 0)=colors[color].red;
+                image(x, y, 1)=colors[color].green;
+                image(x, y, 2)=colors[color].blue;
             }
         }
     }
 
-    // Add the left and right frame
-    for (int y = 0; y < image.height; ++y) {
-        for (int x = 0; x < image.width; ++x) {
-            if (x < frameWidth || x >= image.width - frameWidth) {
-                image(x, y, 0)=0;
-                image(x, y, 1)=0;
-                image(x, y, 2)=200;
+    if(fancy){
+        // Add the border
+        for (int y = frameWidth; y < image.height - frameWidth; ++y) {
+            for (int x = frameWidth; x < image.width - frameWidth; ++x) {
+                if (y < frameWidth + borderWidth || y >= image.height - frameWidth - borderWidth ||
+                    x < frameWidth + borderWidth || x >= image.width - frameWidth - borderWidth) {
+                    image(x, y, 0)=255;
+                    image(x, y, 1)=255;
+                    image(x, y, 2)=255;
+                }
+            }
+
+        }
+        for (int y = 0; y < cornerSize; ++y) {
+            for (int x = 0; x < cornerSize; ++x) {
+
+
+                image(x, y, 0)=255;
+                image(x, y, 1)=255;
+                image(x, y, 2)=255;
+
+                image(image.width - x - 1, y, 0)=255;
+                image(image.width - x - 1, y,1)=255;
+                image(image.width - x - 1, y, 2)=255;
+
+                image(x, image.height - y - 1,0)=255;
+                image(x, image.height - y - 1, 1)=255;
+                image(x, image.height - y - 1, 2)=255;
+
+                image(image.width - x - 1,image.height - y - 1, 0)=255;
+                image(image.width - x - 1,image.height - y - 1,  1)=255;
+                image(image.width - x - 1,image.height - y - 1, 2)=255;
+
+
+
+
+
             }
         }
     }
+
+
+
     saveImage(image,filePath);
 }
-
-
 
 void grayscale(Image image,string filePath)
 {
@@ -364,6 +328,64 @@ void grayscale(Image image,string filePath)
     saveImage(image,filePath);
 }
 
+void verticalBlur(Image image,string filePath ) {
+
+
+    int blur_concentration = 12;
+
+
+    Image blurredImage(image.width, image.height);
+
+
+    for (int y = 0; y < image.height; ++y) {
+        for (int x = 0; x < image.width; ++x) {
+            int red = 0, green = 0, blue = 0, count = 0;
+            for (int i = max(0, y - blur_concentration); i < min(image.height, y + blur_concentration + 1); ++i) {
+                red += image(x, i, 0);
+                green += image(x, i, 1);
+                blue += image(x, i, 2);
+                ++count;
+            }
+            blurredImage(x, y, 0) = red / count;
+            blurredImage(x, y, 1) = green / count;
+            blurredImage(x, y, 2) = blue / count;
+        }
+    }
+
+
+    saveImage(blurredImage,filePath);
+}
+
+void Blur(Image image,string filePath ) {
+
+
+    int blur_concentration=12;
+
+
+    Image blurredImage(image.width, image.height);
+
+    for (int y = 0; y < image.height; ++y) {
+        for (int x = 0; x < image.width; ++x) {
+            int red = 0, green = 0, blue = 0, count = 0;
+            for (int i = std::max(0, x - blur_concentration); i < std::min(image.width, x + blur_concentration + 1); ++i) {
+                red += image(i, y, 0);
+                green += image(i, y, 1);
+                blue += image(i, y, 2);
+                ++count;
+            }
+            blurredImage(x, y, 0) = red / count;
+            blurredImage(x, y, 1) = green / count;
+            blurredImage(x, y, 2) = blue / count;
+        }
+    }
+
+
+
+    verticalBlur( blurredImage, filePath );
+
+}
+
+
 
 
 
@@ -384,12 +406,12 @@ void start(){
         int choose;
         string image2="";
         cout<<"please select what you want to do  "<<endl;
-        cout<<"(1)===> Grayscale Conversion "<<endl;
-        cout<<"(2)===> Black and White "<<endl;
-        cout<<"(3)===> Rotate Image "<<endl;
+        cout<<"(1)===>Invert Image "<<endl;
+        cout<<"(2)===> Rotate Image "<<endl;
+        cout<<"(3)===> Blur Images "<<endl;
         cout<<"(4)===> Adding a Frame to the Picture "<<endl;
-        cout<<"(5)===> Blur Images "<<endl;
-        cout<<"(6)===>Invert Image "<<endl;
+        cout<<"(5)===> Black and White "<<endl;
+        cout<<"(6)===> Grayscale Conversion "<<endl;
         cout<<"(7)===>Merg "<<endl;
         cout<<"(0)===> exit "<<endl;
 
@@ -398,8 +420,8 @@ void start(){
         {
             error = 0;
             cout << " : ";
-            cin >> choose; // Get the number of swaps from user
-            if (cin.fail())
+            cin >> choose;
+            if (cin.fail()||choose<=0||choose>7)
             {
                 cout << "Please enter a valid choice ," << endl;
                 error = 1;
@@ -415,18 +437,15 @@ void start(){
 
         switch (choose) {
             case 0:
+
                 break;
             case 1:
                 cout<<"please wait while your image is processing ......"<<endl;
-                grayscale( Image(filePath),filePath);
+                invert( Image(filePath),filePath);
+
 
                 break;
             case 2:
-                cout<<"please wait while your image is processing ......"<<endl;
-                b_w( Image(filePath),filePath);
-                break;
-            case 3:
-
                 int error;
                 int rotate;
                 do
@@ -434,7 +453,7 @@ void start(){
                     error = 0;
                     cout << " 90,180 or 270 degree : ";
                     cin >> rotate;
-                    if (cin.fail())
+                    if (cin.fail()||(rotate!=90&&rotate!=270&&rotate!=180))
                     {
                         cout << "Please enter a valid choice ," << endl;
                         error = 1;
@@ -444,29 +463,77 @@ void start(){
                 } while (error == 1);
                 cout<<"please wait while your image is processing ......"<<endl;
                 Rotate( Image(filePath),rotate,filePath);
+
+                break;
+            case 3:
+
+                cout<<"please wait while your image is processing ......"<<endl;
+                Blur( Image(filePath),filePath);
+
+
                 break;
             case 4:
+                int ERorr;
+                int fancy;
+                do
+                {
+                    ERorr = 0;
+                    cout<<"please choose what you want : \n"
+                          "(1)===> regular \n(2)===> fancy\n";
+
+                    cin >> fancy;
+                    if (cin.fail()||fancy<0||fancy>2)
+                    {
+                        cout << "Please enter a valid choice ," << endl;
+                        ERorr = 1;
+                        cin.clear();
+                        cin.ignore(80, '\n');
+                    }
+                } while (ERorr == 1);
+
+
+                int Error;
+                int color;
+                do
+                {
+                    Error = 0;
+                    cout<<"please choose color you want : \n"
+                          "(1)===> Red \n(2)===> Green\n(3)===>Blue \n(4)===> Yellow\n(5)===>Cyan \n"
+                          "(6)===> Orange\n(7)===> Purple\n(8)===> Pink\n(9)===> Gray\n(10)===> Black\n";
+
+                    cin >> color;
+                    if (cin.fail()||color<0||color>10)
+                    {
+                        cout << "Please enter a valid choice ," << endl;
+                        Error = 1;
+                        cin.clear();
+                        cin.ignore(80, '\n');
+                    }
+                } while (error == 1);
+
+
                 cout<<"please wait while your image is processing ......"<<endl;
-                addDecoratedFrame( Image(filePath), filePath);
+                addFrame( Image(filePath), filePath,color-1,fancy-1);
+
                 break;
             case 5:
                 cout<<"please wait while your image is processing ......"<<endl;
-                makeBlure( Image(filePath),filePath);
+                b_w( Image(filePath),filePath);
                 break;
             case 6:
+
                 cout<<"please wait while your image is processing ......"<<endl;
-                invert( Image(filePath),filePath);
-
+                grayscale( Image(filePath),filePath);
                 break;
-            case 7:
+                  case 7:
 
-                cout<<"please enter path ot second image : "<<endl;
+                      cout<<"please enter path ot second image : "<<endl;
 
-                cin>>image2;
-                cout<<"please wait while your image is processing ......"<<endl;
-                Merg( Image(filePath),Image(image2),filePath);
+                      cin>>image2;
+                      cout<<"please wait while your image is processing ......"<<endl;
+                      Merg( Image(filePath),Image(image2),filePath);
 
-                break;
+                      break;
 
             default:
                 cout << "please enter valid input"; // no error
@@ -480,9 +547,12 @@ void start(){
 
 
 }
+
+
 int main() {
 
-  start();
+
+    start();
 
 
 
@@ -490,4 +560,4 @@ int main() {
 
 
 
-        }
+}
