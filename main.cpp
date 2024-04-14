@@ -1,40 +1,4 @@
 
-/* author 1 amr khaled with ID :20230271
-   author 2 hossam mohamed with ID :20230122
-   author 3 saif elden omar  with ID :20230183
-
-descrption:
-
-Inversion: Inverts the colors of the image.
-
-Rotation: Rotates the image by 90, 180, or 270 degrees.
-
-Blur: Applies a blur effect to the image to smooth out details.
-
-Add Frame: Adds a frame to the image with a specified color.
-
-Black and White Conversion:Converts the image to black and white, preserving essential details while removing color information.
-
-Grayscale Conversion: Converts the image to grayscale, simplifying it to shades of gray.
-
-The program incorporates error handling and input validation to ensure user
- inputs are valid, providing a seamless experience. Additionally, it offers options
- for saving the manipulated images either to the same file or a new file, enhancing
- flexibility in file management.
-
- who did what :
- amr khaled with ID:20230271 did blur,rotate,invert and add frame and made the menu and
- function to save image
-
- hossam mohamed with ID :20230122 did gray scale
-
- saif elden omar  with ID :20230183 did black and wight
-
-
-   */
-
-
-
 
 
 
@@ -49,8 +13,9 @@ struct RGB{
     int red, green, blue;
 
 };
+string GlopalFilePath;
 
-void  start();
+void  start(bool check);
 
 void saveImage(Image image,string filePath){
     int choice;
@@ -74,18 +39,20 @@ void saveImage(Image image,string filePath){
 
     switch (choice) {
         case 1:
-            try { image.saveImage(filePath);; }
-            catch (const std::exception& e)
+            try { image.saveImage(filePath); }
+            catch (const exception& e)
             {  saveImage( image, filePath); }
 
             cout<<" done and file saved successfully"<<endl;
             system(filePath.c_str());
-            start();
+            GlopalFilePath=filePath;
+            //start();
             break;
         case 2:
             string newPth;
             cout<<" please enter  new path  consider the extension  (.PNG , .JPEG, .bmp, .JPG, .tga )  : "<<endl;
             cin>>newPth;
+            GlopalFilePath=newPth;
             try { image.saveImage(newPth); }
             catch (const std::exception& e)
             {
@@ -94,16 +61,40 @@ void saveImage(Image image,string filePath){
 
             cout<<" done and file saved successfully"<<endl;
             system(newPth.c_str());
-            start();
+            //start();
             break;
 
+    }
+    cout<<"(1)===> Continue in same filepath  "<<endl;
+    cout<<"(2)===> Upload new photo "<<endl;
+    cout<<"(0)===> exit "<<endl;
+    do
+    {
+        error = 0;
+        cout << " : ";
+        cin >> choice; // Get the number of swaps from user
+        if (cin.fail()||choice<0||choice>2)
+        {
+            cout << "Please enter a valid choice ," << endl;
+            error = 1;
+            cin.clear();
+            cin.ignore(80, '\n');
+        }
+    } while (error == 1);
+    if (choice==0) {
+        cout<<"app end";
+        exit(0);
+    }
+    if(choice==1){
+        start(1);
+    }
+    else if(choice==2){
+        start(0);
     }
 }
 
 void invert(Image image,string filePath ){
-    int red=0;
-    int green=0;
-    int blue=0;
+    int red,green,blue;
 
     for (int i = 0; i <image.width ; ++i) {
         for (int j = 0; j <image.height ; ++j) {
@@ -167,6 +158,43 @@ void Rotate(Image image,int rotate,string filePath){
         }
         saveImage(tempimage90,filePath);
     }
+}
+
+void Darken(Image image , string filepath)
+{
+    Image final(image.width,image.height);
+    for(int i =0; i<image.width;i++)
+    {
+        for (int j=0;j<image.height;j++)
+        {
+            for(int k =0;k<3;k++)
+            {
+                int finalpixel=image(i,j,k)*0.5;
+                finalpixel = min(max(finalpixel, 0), 255);
+                final(i,j,k)=finalpixel;
+
+            }
+        }
+    }
+    saveImage(final,filepath);
+}
+void Lighten(Image image , string filepath)
+{
+    Image final(image.width,image.height);
+    for(int i =0; i<image.width;i++)
+    {
+        for (int j=0;j<image.height;j++)
+        {
+            for(int k =0;k<3;k++)
+            {
+                int finalpixel=image(i,j,k)*1.5;
+                finalpixel = min(max(finalpixel, 0), 255);
+                final(i,j,k)=finalpixel;
+
+            }
+        }
+    }
+    saveImage(final,filepath);
 }
 
 void Merg(Image image,Image image2,string filePath ){
@@ -328,7 +356,40 @@ void grayscale(Image image,string filePath)
     saveImage(image,filePath);
 }
 
-void verticalBlur(Image image,string filePath ) {
+void detectedges(Image image, string filePath) {
+
+    vector<vector<int>> neighborsMap(image.height, vector<int>(image.width, 0));
+    for(int i = 1; i < image.width-1 ; i++) {
+        for(int j = 1; j < image.height-1 ; j++) {
+
+            int x = image(i + 1, j, 0) - image(i - 1, j, 0);
+            int y = image(i, j + 1, 0) - image(i, j - 1, 0);
+            neighborsMap[i][j] = sqrt(x * x + y * y);
+        }
+    }
+
+
+    int threshold = 85;
+    for(int i = 1; i < image.width - 1; i++) {
+        for(int j = 1; j < image.height - 1; j++) {
+            for(int k=0;k<3;k++){
+                if (neighborsMap[i][j] > threshold) {
+
+                    image(i, j, k) = 0;
+                } else {
+
+                    image(i, j, k) = 255;
+
+                }
+            }
+        }
+    }
+    saveImage(image, filePath);
+}
+
+
+void verticalBlur(Image image,string filePath )
+{
 
 
     int blur_concentration = 12;
@@ -356,7 +417,8 @@ void verticalBlur(Image image,string filePath ) {
     saveImage(blurredImage,filePath);
 }
 
-void Blur(Image image,string filePath ) {
+void Blur(Image image,string filePath )
+{
 
 
     int blur_concentration=12;
@@ -364,7 +426,8 @@ void Blur(Image image,string filePath ) {
 
     Image blurredImage(image.width, image.height);
 
-    for (int y = 0; y < image.height; ++y) {
+    for (int y = 0; y < image.height; ++y)
+    {
         for (int x = 0; x < image.width; ++x) {
             int red = 0, green = 0, blue = 0, count = 0;
             for (int i = std::max(0, x - blur_concentration); i < std::min(image.width, x + blur_concentration + 1); ++i) {
@@ -385,21 +448,178 @@ void Blur(Image image,string filePath ) {
 
 }
 
+void Flip_Horiz(Image photo,string filePath)
+{
+
+    Image rotated_h(photo.width,photo.height);
+
+
+    for(int i = 0; i < photo.width; ++i)
+    {
+        for(int j = 0; j < photo.height; ++j)
+        {
+
+            for(int k = 0; k < photo.channels; ++k)
+            {
+                rotated_h( i, j, k) = photo(photo.width-1-i, j, k);
+            }
+        }
+    }
+
+    saveImage(rotated_h,filePath);
+
+}
+
+
+void Flip_ver(Image photo,string filePath)
+{
+
+    Image rotated_ver(photo.width,photo.height);
+
+
+    for(int i = 0; i < photo.width; ++i)
+    {
+        for(int j = 0; j < photo.height; ++j)
+        {
+
+            for(int k = 0; k < photo.channels; ++k)
+            {
+                rotated_ver( i, j, k) = photo(i, photo.height-1-j, k);
+            }
+        }
+    }
+
+    saveImage(rotated_ver,filePath);
+
+}
+
+
+void resize(Image photo,string filepath)
+{
+    int x,y;
+    double m;
+    double n;
+    cout<<"Enter the new dimensions: ";
+    cin>>x>>y;
+    Image neew(x,y);
+
+    m=(photo.width/x);
+    n=(photo.height/y);
+
+    for(int i=0;i<neew.width;++i)
+    {
+        for(int j=0;j<neew.height;++j)
+        {
+            for(int k=0;k<neew.channels;++k)
+            {
+                neew(i,j,k)= photo(round(i*m),round(j*n),k);
+            }
+        }
+    }
+
+    saveImage(neew,filepath);
+
+}
+
+void crop(Image image,string filepath)
+{
+    int x,y;
+    cout<<"Enter the starting points:";
+    cin>>x>>y;
+
+    int l,o;
+    cout<<"Enter the new dimensions: ";
+    cin>>l>>o;
+    Image cropped(l,o);
+
+    for(int i=x;i<l+x;++i)
+    {
+        for(int j=y;j<o+y;++j)
+        {
+            for(int k=0;k<image.channels;++k)
+            {
+                cropped(i-x,j-y,k)=image(i,j,k);
+            }
+        }
+
+    }
+
+    saveImage(cropped,filepath);
+
+
+}
+
+void adjust_warm(Image image, string filePath) {
+    const int redIncrease = 35;
+    const int greenIncrease = 50;
+
+    for (int i = 0; i < image.width; i++) {
+        for (int j = 0; j < image.height; j++) {
+
+            int newRed = min(image(i, j, 0) + redIncrease, 255);
+            int newGreen = min(image(i, j, 1) + (greenIncrease), 255);
+            // Apply the new red and green values to the image
+            image(i, j, 0) = newRed;
+            image(i, j, 1) = newGreen;
+        }
+    }
+    saveImage(image, filePath);
+}
+void purp(Image image, string filePath)
+{
+
+
+
+    for(int i =0; i < image.width; ++i)
+    {
+        for(int j=0; j < image.height; ++j)
+        {
+            for(int k=0; k < image.channels; ++k)
+            {
+                // image(i,j,0)= image(i,j,0)*2;
+                image(i, j, 1)= image(i, j, 1) * 0.9;
+                // image(i,j,2)=image(i,j,2)*1.9;
+            }
+        }
+    }
+
+    saveImage(image, filePath);
+}
+void infrared(Image image,string filePath) {
+    for (int y = 0; y < image.height; ++y) {
+        for (int x = 0; x < image.width; ++x) {
+            // Get the pixel value at (x, y)
 
 
 
 
-void start(){
-    string filePath;
-    cout<<" welcome"<<endl;
-    cout<<" please enter file path : ";
-    cin>>filePath;
+            image(x, y, 0) = 230;
+            image(x, y, 1) = 255 - (image(x, y, (1)));
+            image(x, y, 2) = 255 - (image(x, y, (2)));
 
 
-    try { Image image(filePath); }
-    catch (const std::exception& e)
-    { start(); }
+        }
+    }
+    saveImage(image,filePath);
+}
+
+
+
+void start(bool check=0){
+
+    if(check==0){
+
+        cout<<"Welcome"<<endl;
+        cout<<"Enter file path:";
+        cin >> GlopalFilePath;
+
+        try { Image image(GlopalFilePath); }
+        catch (const std::exception& e)
+        { start(); }
+    }
+
     while (true){
+
 
 
 
@@ -413,6 +633,14 @@ void start(){
         cout<<"(5)===> Black and White "<<endl;
         cout<<"(6)===> Grayscale Conversion "<<endl;
         cout<<"(7)===>Merg "<<endl;
+        cout<<"(8)===> Darken or Lighten" <<endl;
+        cout<<"(9)===> detect image edges" <<endl;
+        cout<<"(10)===>Flip image " <<endl;
+        cout<<"(11)===> resize  image " <<endl;
+        cout<<"(12)===> Crop image " <<endl;
+        cout<<"(13)===> Adjust warmth"<<endl;
+        cout<<"(14)===> Purple "<<endl;
+        cout<<"(15)===> Infrared "<<endl;
         cout<<"(0)===> exit "<<endl;
 
         int error;
@@ -421,7 +649,7 @@ void start(){
             error = 0;
             cout << " : ";
             cin >> choose;
-            if (cin.fail()||choose<=0||choose>7)
+            if (cin.fail()||choose<0||choose>15)
             {
                 cout << "Please enter a valid choice ," << endl;
                 error = 1;
@@ -441,7 +669,7 @@ void start(){
                 break;
             case 1:
                 cout<<"please wait while your image is processing ......"<<endl;
-                invert( Image(filePath),filePath);
+                invert(Image(GlopalFilePath), GlopalFilePath);
 
 
                 break;
@@ -462,13 +690,13 @@ void start(){
                     }
                 } while (error == 1);
                 cout<<"please wait while your image is processing ......"<<endl;
-                Rotate( Image(filePath),rotate,filePath);
+                Rotate(Image(GlopalFilePath), rotate, GlopalFilePath);
 
                 break;
             case 3:
 
                 cout<<"please wait while your image is processing ......"<<endl;
-                Blur( Image(filePath),filePath);
+                Blur(Image(GlopalFilePath), GlopalFilePath);
 
 
                 break;
@@ -513,27 +741,89 @@ void start(){
 
 
                 cout<<"please wait while your image is processing ......"<<endl;
-                addFrame( Image(filePath), filePath,color-1,fancy-1);
+                addFrame(Image(GlopalFilePath), GlopalFilePath, color - 1, fancy - 1);
 
                 break;
             case 5:
                 cout<<"please wait while your image is processing ......"<<endl;
-                b_w( Image(filePath),filePath);
+                b_w(Image(GlopalFilePath), GlopalFilePath);
                 break;
             case 6:
 
                 cout<<"please wait while your image is processing ......"<<endl;
-                grayscale( Image(filePath),filePath);
+                grayscale(Image(GlopalFilePath), GlopalFilePath);
                 break;
-                  case 7:
+            case 7:
 
-                      cout<<"please enter path ot second image : "<<endl;
+                cout<<"please enter path of second image : "<<endl;
 
-                      cin>>image2;
-                      cout<<"please wait while your image is processing ......"<<endl;
-                      Merg( Image(filePath),Image(image2),filePath);
+                cin>>image2;
+                cout<<"please wait while your image is processing ......"<<endl;
+                Merg(Image(GlopalFilePath), Image(image2), GlopalFilePath);
 
-                      break;
+                break;
+            case 8:
+                int choice;
+                cout<<"(1)Darken \n(2)Lighten"<<endl;
+                cin >>choice;
+
+                cout<<"please wait while your image is processing ......"<<endl;
+                if(choice==1){
+                    Darken(Image(GlopalFilePath), GlopalFilePath);
+                }
+                else{
+                    Lighten(Image(GlopalFilePath), GlopalFilePath);
+                }
+                break;
+            case 9:
+                cout<<"please wait while your image is processing ......"<<endl;
+                detectedges(Image(GlopalFilePath), GlopalFilePath);
+                break;
+
+            case 10:
+                int num;
+                cout<<"(1)Flip horizontal"<<endl;
+                cout<<"(2)Flip virtecal"<<endl;
+                cin>>num;
+                if(num==1)
+                {
+                    cout<<"please wait while your image is processing ......"<<endl;
+                    Flip_Horiz(Image(GlopalFilePath), GlopalFilePath);
+
+                }
+                else
+                {
+                    cout<<"please wait while your image is processing ......"<<endl;
+                    Flip_ver(Image(GlopalFilePath), GlopalFilePath);
+                }
+                break;
+
+
+
+
+
+            case 11:
+                cout<<"please wait while your image is processing ......"<<endl;
+                resize(Image(GlopalFilePath), GlopalFilePath);
+                break;
+
+
+            case 12:
+                cout<<"please wait while your image is processing ......"<<endl;
+                crop(Image(GlopalFilePath), GlopalFilePath);
+                break;
+            case 13:
+                cout<<"please wait while your image is processing ......"<<endl;
+                adjust_warm(Image(GlopalFilePath), GlopalFilePath);
+                break;
+            case 14:
+                cout<<"please wait while your image is processing ......"<<endl;
+                purp(Image(GlopalFilePath), GlopalFilePath);
+            case 15:
+                cout<<"please wait while your image is processing ......"<<endl;
+                infrared(Image(GlopalFilePath), GlopalFilePath);
+
+
 
             default:
                 cout << "please enter valid input"; // no error
@@ -544,20 +834,14 @@ void start(){
         }
     }
 
-
-
 }
 
-
-int main() {
-
+int main()
+{
 
     start();
 
-
-
     return 0;
-
 
 
 }
